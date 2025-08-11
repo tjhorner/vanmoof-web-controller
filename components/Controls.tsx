@@ -22,6 +22,7 @@ export default function BikeControls({ bike, api, disconnect }: BikeControlsArgs
                 <SpeedLimit bike={bike} />
                 <PowerLevel bike={bike} />
                 <BellTone bike={bike} />
+                <WheelSize bike={bike} />
                 <SoundBoard />
                 {api && bike.id && <>
                     <ShareBike bike={bike} api={api} />
@@ -153,6 +154,65 @@ function SetSpeedLimitButton({ country, maxSpeed, selected, select }: SetSpeedLi
         >
             <h1 style={{ margin: 0 }}>{country}</h1>
             <span style={{ color: 'var(--secondary-border-color)' }}>{maxSpeed} km/h</span>
+        </Button>
+    )
+}
+
+function WheelSize({ bike }: { bike: Bike }) {
+    const [currentWheelSize, setCurrentWheelSize] = useState<number | undefined>(undefined)
+
+    useEffect(() => {
+        bike.getWheelSize().then(setCurrentWheelSize)
+    }, [])
+
+    const setNewWheelSize = async (size: number) => {
+        setCurrentWheelSize(size)
+        setCurrentWheelSize(await bike.setWheelSize(size as 0 | 1))
+    }
+
+    const wheelSizes: Array<[string, number, string]> = [
+        ['X3', 0, 'X3 wheel'],
+        ['S3', 1, 'S3 wheel'],
+    ]
+
+    return (
+        <>
+            <h3>Wheel size</h3>
+            <div style={{ display: 'inline-block' }}>
+                {wheelSizes.map(([label, size, description]) =>
+                    <SetWheelSizeButton
+                        key={size}
+                        label={label}
+                        description={description}
+                        selected={currentWheelSize === size}
+                        onSelect={() => setNewWheelSize(size)}
+                    />
+                )}
+            </div>
+        </>
+    )
+}
+
+interface SetWheelSizeButtonArgs {
+    label: string
+    description: string
+    selected: boolean
+    onSelect(): void
+}
+
+function SetWheelSizeButton({ label, description, selected, onSelect }: SetWheelSizeButtonArgs) {
+    return (
+        <Button
+            onClick={onSelect}
+            style={{
+                margin: 4,
+                padding: '6px 10px',
+                width: 'auto',
+                backgroundColor: selected ? 'var(--active-button-bg-color)' : undefined,
+            }}
+        >
+            <h1 style={{ margin: 0 }}>{label}</h1>
+            <span style={{ color: 'var(--secondary-border-color)' }}>{description}</span>
         </Button>
     )
 }
