@@ -171,8 +171,8 @@ function WheelSize({ bike }: { bike: Bike }) {
     }
 
     const wheelSizes: Array<[string, number, string]> = [
-        ['X3', 0, 'X3 wheel'],
-        ['S3', 1, 'S3 wheel'],
+        ['X3', 0, '24-inch wheel'],
+        ['S3', 1, '28-inch wheel'],
     ]
 
     return (
