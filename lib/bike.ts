@@ -195,9 +195,19 @@ export class Bike {
         return uwnrapSpeedLimit(result)
     }
 
-    async initiateBellSoundTransfer(buffer: ArrayBuffer): Promise<any> {
+    async getWheelSize(): Promise<0 | 1> {
+        const result = await this.bluetoothRead(WHEEL_SIZE)
+        return result[0] as 0 | 1
+    }
+
+    async setWheelSize(wheelSize: 0 | 1): Promise<0 | 1> {
+        await this.bluetoothWrite(WHEEL_SIZE, new Uint8Array([wheelSize, 0x1]))
+        return wheelSize
+    }
+
+    async initiateSoundTransfer(soundId: number, buffer: ArrayBuffer): Promise<any> {
         const fileHeader = new Uint8Array(9)
-        fileHeader.set([0xF], 0)
+        fileHeader.set([soundId + 1], 0)
 
         const fileSize = buffer.byteLength
         fileHeader.set([fileSize >> 24, fileSize >> 16, fileSize >> 8, fileSize], 1)

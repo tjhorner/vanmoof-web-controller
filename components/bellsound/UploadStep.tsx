@@ -8,6 +8,7 @@ export default function UploadStep({ bike, onDismiss, convertedFile, onUploadCom
     convertedFile: Uint8Array,
     onUploadCompleted: () => void,
 }) {
+    const [soundId, setSoundId] = useState<number>(BellTone.Foghorn)
     const [uploading, setUploading] = useState<boolean>(false)
     const [uploadProgress, setUploadProgress] = useState<number>(0)
 
@@ -15,7 +16,7 @@ export default function UploadStep({ bike, onDismiss, convertedFile, onUploadCom
         setUploading(true)
         setUploadProgress(0)
 
-        await bike.initiateBellSoundTransfer(convertedFile)
+        await bike.initiateSoundTransfer(soundId, convertedFile)
 
         const chunkSize = 240
         for (let i = 0; i < convertedFile.byteLength; i += chunkSize) {
@@ -24,10 +25,14 @@ export default function UploadStep({ bike, onDismiss, convertedFile, onUploadCom
             setUploadProgress(i / convertedFile.byteLength)
         }
 
-        await bike.setBellTone(BellTone.Foghorn)
+        // await bike.setBellTone(BellTone.Foghorn)
 
         onUploadCompleted()
         setUploading(false)
+    }
+
+    const changeSoundId = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSoundId(parseInt(e.target.value))
     }
 
     return (
@@ -35,6 +40,12 @@ export default function UploadStep({ bike, onDismiss, convertedFile, onUploadCom
             <p>Your sound has been converted to the VanMoof bell sound format, and is now ready to upload.</p>
             <p>Press Upload to continue, and keep this device close to your bike.</p>
             {uploading ? <p>Uploading... {Math.round(uploadProgress * 100)}%</p> : null}
+
+            <select value={soundId} onChange={changeSoundId}>
+                <option value={BellTone.Foghorn}>Foghorn</option>
+                <option value={0xE}>Alarm Stage 1</option>
+                <option value={0xF}>Alarm Stage 2</option>
+            </select>
 
             <WalkthroughButton onClick={startUpload} disabled={uploading} isPrimary>Upload!</WalkthroughButton>
             <WalkthroughButton onClick={onDismiss} disabled={uploading}>Cancel</WalkthroughButton>
